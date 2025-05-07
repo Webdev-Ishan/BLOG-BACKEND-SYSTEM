@@ -1,9 +1,10 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-import authRoutes from "./Routes/authRoutes.js";
+import authRoutes from "./Routes/authRoutes.js"
 import { configDotenv } from "dotenv";
 configDotenv();
-import initializeDatabase from './config/initDB.js' 
+import initializeDatabase from "./config/initDB.js";
+import cloud from "./config/cloudinary.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -11,7 +12,6 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
 
 // Initialize the database
 (async () => {
@@ -22,10 +22,9 @@ app.use(cookieParser());
     process.exit(1); // Exit the application if the database connection fails
   }
 })();
-
+cloud();
 app.use("/api/auth", authRoutes);
 
 app.listen(port, () => {
-  console.log(`Server is running on port : ${port}`)
-
+  console.log(`Server is running on port : ${port}`);
 });
