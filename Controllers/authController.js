@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import transporter from "../config/nodemailer.js";
 import { v2 as cloudinary } from "cloudinary";
+import { client } from "../config/redis.js";
 
 export const register = async (req, res) => {
   const { username, email, password, profilepic } = req.body;
@@ -11,6 +12,15 @@ export const register = async (req, res) => {
     return res.json({ success: false, message: "Crendentials are required" });
   }
   try {
+    let cache = client.get(`user:profile:${email}`);
+
+    if (cache) {
+      return res.json({
+        success: false,
+        message: "User already exists in cache",
+      });
+    }
+
     let existuser = await userModel.findOne({
       where: { email: email },
     });
@@ -37,6 +47,8 @@ export const register = async (req, res) => {
         tableName: "users",
       }
     );
+
+    let cacheuser = client.set(`user:profile:${email}`, JSON.stringify(user));
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
@@ -70,6 +82,15 @@ export const login = async (req, res) => {
     return res.json({ success: false, message: "Crendentials are required" });
   }
   try {
+    let cache = client.get(`user:profile:${email}`);
+
+    if (cache) {
+      return res.json({
+        success: false,
+        message: "User already exists in cache",
+      });
+    }
+
     let user = await userModel.findOne({
       where: { email: email },
     });

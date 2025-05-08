@@ -6,6 +6,7 @@ import aiRoutes from "./Routes/aiRoutes.js"
 import { configDotenv } from "dotenv";
 configDotenv();
 import initializeDatabase from "./config/initDB.js";
+import { redisconnect} from "./config/redis.js";
 import cloud from "./config/cloudinary.js";
 
 const app = express();
@@ -25,6 +26,7 @@ app.use(cookieParser());
   }
 })();
 cloud();
+ await redisconnect();
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/ai", aiRoutes);
