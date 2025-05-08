@@ -1,8 +1,8 @@
 // Models/comment.model.js
-import { DataTypes } from 'sequelize';
-import sequelize from '../Db.js';
+import { DataTypes } from "sequelize";
+import sequelize from "../config/Db.js";
 
-const Comment = sequelize.define('comment', {
+const Comment = sequelize.define("comment", {
   text: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -18,4 +18,3 @@ const Comment = sequelize.define('comment', {
 });
 
 export default Comment;
-

@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer'
+import nodemailer from "nodemailer";
 import { configDotenv } from "dotenv";
 configDotenv();
 // Create a test account or replace with real credentials.
@@ -10,9 +10,9 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
   },
-  tls:{
-    rejectUnauthorized:false
-  }
+  tls: {
+    rejectUnauthorized: false,
+  },
 });
 
-export default transporter
+export default transporter;

@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { configDotenv } from "dotenv";
 configDotenv();
-export const authuser = async (req, res, next) => {
+export const usermid = async (req, res, next) => {
   let token = req.cookies.token;
   if (!token) {
     return res.json({ success: false, message: "Log in first" });
@@ -12,7 +12,7 @@ export const authuser = async (req, res, next) => {
 
     if (decoded.id) {
       req.body = req.body || {}; // Ensure req.body is defined
-      req.body.id = decoded.id;
+      req.body.userId = decoded.id;
       next();
     } else {
       return res.json({ success: false, message: "Something went wrong" });

@@ -1,8 +1,8 @@
 // Models/blog.model.js
-import { DataTypes } from 'sequelize';
-import sequelize from '../Db.js';
+import { DataTypes } from "sequelize";
+import sequelize from "../config/Db.js";
 
-const Blog = sequelize.define('blog', {
+const Blog = sequelize.define("blog", {
   title: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -11,11 +11,10 @@ const Blog = sequelize.define('blog', {
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  userId: {
+  authorId: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
 });
 
 export default Blog;
-

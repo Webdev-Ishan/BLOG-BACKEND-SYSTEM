@@ -2,10 +2,10 @@ import userModel from "../Models/user.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import transporter from "../config/nodemailer.js";
-import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary } from "cloudinary";
 
 export const register = async (req, res) => {
-  const { username, email, password,profilepic } = req.body;
+  const { username, email, password, profilepic } = req.body;
 
   if (!username || !email || !password) {
     return res.json({ success: false, message: "Crendentials are required" });
@@ -22,17 +22,21 @@ export const register = async (req, res) => {
     let salt = await bcrypt.genSalt(10);
     let hashed = await bcrypt.hash(password, salt);
 
-
-   const imageUpload = await cloudinary.uploader.upload(profilepic, {
-    resource_type: "image",
-  });
-
-    let user = await userModel.create({
-      username,
-      email,
-      password: hashed,
-      profilepic:imageUpload.secure_url
+    const imageUpload = await cloudinary.uploader.upload(profilepic, {
+      resource_type: "image",
     });
+
+    let user = await userModel.create(
+      {
+        username,
+        email,
+        password: hashed,
+        profilepic: imageUpload.secure_url,
+      },
+      {
+        tableName: "users",
+      }
+    );
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
@@ -74,7 +78,16 @@ export const login = async (req, res) => {
       return res.json({ success: false, message: "Sign up first" });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    let decode = await bcrypt.compare(password, user.password);
+
+    if (!decode) {
+      return res.json({
+        success: false,
+        message: "Email or password is wrong.",
+      });
+    }
+
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
 
@@ -102,7 +115,7 @@ export const profile = async (req, res) => {
   try {
     // Assuming 'id' in the token corresponds to the user's unique identifier
     let user = await userModel.findOne({
-      where: { id: req.body.id },  // Use 'id' instead of 'email' if you're using the user ID
+      where: { id: req.body.id }, // Use 'id' instead of 'email' if you're using the user ID
     });
 
     if (!user) {
@@ -115,21 +128,15 @@ export const profile = async (req, res) => {
   }
 };
 
-export const logout = async(req,res)=>{
-
-try {
-
-  res.cookie("token", "", {
-    httpOnly: true,
-    maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
-    sameSite: "none", // Required for cross-origin cookies
-  });
-  return res.json({success:true,message:"Logged out succesfull!!"})
-  
-} catch (error) {
-  return res.json({ success: false, message: error.message });
-}
-
-
-
-}
+export const logout = async (req, res) => {
+  try {
+    res.cookie("token", "", {
+      httpOnly: true,
+      maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
+      sameSite: "none", // Required for cross-origin cookies
+    });
+    return res.json({ success: true, message: "Logged out succesfull!!" });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};

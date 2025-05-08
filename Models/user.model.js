@@ -26,16 +26,15 @@ const user = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    profilepic:{
-      type:DataTypes.STRING,
+    profilepic: {
+      type: DataTypes.STRING,
       allowNull: false,
-    }
+    },
   },
   {
     timestamps: true,
   }
 );
-
 
 //user.hasMany(Blog, { foreignKey: 'userId', onDelete: 'CASCADE' });
 //Blog.belongsTo(user, { foreignKey: 'userId' });
