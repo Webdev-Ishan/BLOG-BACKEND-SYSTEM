@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import authRoutes from "./Routes/authRoutes.js";
 import userRoutes from "./Routes/userRoutes.js";
+import aiRoutes from "./Routes/aiRoutes.js"
 import { configDotenv } from "dotenv";
 configDotenv();
 import initializeDatabase from "./config/initDB.js";
@@ -26,6 +27,7 @@ app.use(cookieParser());
 cloud();
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.listen(port, () => {
   console.log(`Server is running on port : ${port}`);
