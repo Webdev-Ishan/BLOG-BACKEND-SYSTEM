@@ -2,6 +2,7 @@ import express from "express";
 import * as authController from "../Controllers/authController.js";
 import multer from "../Middleware/multer.js";
 import { authuser } from "../Middleware/auth.middleware.js";
+import passport from "passport";
 const authrouter = express.Router();
 
 authrouter.post(

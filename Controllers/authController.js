@@ -12,14 +12,17 @@ export const register = async (req, res) => {
     return res.json({ success: false, message: "Crendentials are required" });
   }
   try {
-    let cache = client.get(`user:profile:${email}`);
+    let cache = await client.get(`user:profile:${email}`);
+    cache = cache ? JSON.parse(cache) : null;
 
-    if (cache) {
+    if (cache && cache.email === email) {
       return res.json({
         success: false,
         message: "User already exists in cache",
       });
     }
+
+  
 
     let existuser = await userModel.findOne({
       where: { email: email },
@@ -47,8 +50,8 @@ export const register = async (req, res) => {
         tableName: "users",
       }
     );
-
-    let cacheuser = client.set(`user:profile:${email}`, JSON.stringify(user));
+   
+await client.set(`user:profile:${email}`, JSON.stringify(user));
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
@@ -82,15 +85,37 @@ export const login = async (req, res) => {
     return res.json({ success: false, message: "Crendentials are required" });
   }
   try {
-    let cache = client.get(`user:profile:${email}`);
+    let cache = await client.get(`user:profile:${email}`);
+    cache = cache ? JSON.parse(cache) : null;
 
-    if (cache) {
+    if (cache && cache.email === email) {
+
+
+      const token = jwt.sign({ id: cache.id }, process.env.JWT_SECRET, {
+        expiresIn: "1d",
+      });
+  
+      res.cookie("token", token, {
+        httpOnly: true,
+        maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
+        sameSite: "none", // Required for cross-origin cookies
+      });
+  
+      const mailOptions = {
+        from: process.env.SENDER_EMAIL,
+        to: cache.email,
+        subject: "Account is logineed",
+        text: `Welcome to the Blog App`,
+      };
+  
+      await transporter.sendMail(mailOptions);
+
+
       return res.json({
-        success: false,
-        message: "User already exists in cache",
+        success: true,
+        message: "User logged in from cache",
       });
     }
-
     let user = await userModel.findOne({
       where: { email: email },
     });
@@ -126,7 +151,7 @@ export const login = async (req, res) => {
     };
 
     await transporter.sendMail(mailOptions);
-    return res.json({ success: true, message: "Logged in succesfull" });
+    return res.json({ success: true, message: "Logged in succesfull" ,cache});
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }
