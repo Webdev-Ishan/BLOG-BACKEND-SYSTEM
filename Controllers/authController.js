@@ -175,12 +175,23 @@ export const profile = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
+
+
+let user = await userModel.findOne({
+  where:{id:req.body.id}
+})
+
   try {
+
+client.del(`user:profile:ishansaini0105@gmail.com`);
+
+
     res.cookie("token", "", {
       httpOnly: true,
       maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
       sameSite: "none", // Required for cross-origin cookies
     });
+
     return res.json({ success: true, message: "Logged out succesfull!!" });
   } catch (error) {
     return res.json({ success: false, message: error.message });

@@ -36,7 +36,6 @@ const user = sequelize.define(
   }
 );
 
-//user.hasMany(Blog, { foreignKey: 'userId', onDelete: 'CASCADE' });
-//Blog.belongsTo(user, { foreignKey: 'userId' });
+
 
 export default user;

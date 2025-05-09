@@ -8,7 +8,7 @@ const redisconnect = async () => {
     username: "default",
     password: process.env.REDIS_PASSWORD,
     socket: {
-      host: process.env.REDIS_HOST,  // ✅ Fixed typo
+      host: process.env.REDIS_HOST,  
       port: process.env.REDIS_PORT,
     },
   });
@@ -18,10 +18,7 @@ const redisconnect = async () => {
   await client.connect();
   console.log("✅ Connected to Redis");
 
-  // Optional test
-  await client.set("foo", "bar");
-  const result = await client.get("foo");
-  console.log("Test value:", result);
+  
 };
 
 export { redisconnect, client };

@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./Routes/authRoutes.js";
 import userRoutes from "./Routes/userRoutes.js";
 import aiRoutes from "./Routes/aiRoutes.js";
+import paymentRoutes from "./Routes/paymentRoute.js";
 import { configDotenv } from "dotenv";
 configDotenv();
 import initializeDatabase from "./config/initDB.js";
@@ -30,6 +31,7 @@ await redisconnect();
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/payment",paymentRoutes);
 
 app.listen(port, () => {
   console.log(`Server is running on port : ${port}`);
