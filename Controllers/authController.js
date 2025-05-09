@@ -22,8 +22,6 @@ export const register = async (req, res) => {
       });
     }
 
-  
-
     let existuser = await userModel.findOne({
       where: { email: email },
     });
@@ -50,8 +48,8 @@ export const register = async (req, res) => {
         tableName: "users",
       }
     );
-   
-await client.set(`user:profile:${email}`, JSON.stringify(user));
+
+    await client.set(`user:profile:${email}`, JSON.stringify(user));
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
@@ -89,27 +87,24 @@ export const login = async (req, res) => {
     cache = cache ? JSON.parse(cache) : null;
 
     if (cache && cache.email === email) {
-
-
       const token = jwt.sign({ id: cache.id }, process.env.JWT_SECRET, {
         expiresIn: "1d",
       });
-  
+
       res.cookie("token", token, {
         httpOnly: true,
         maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
         sameSite: "none", // Required for cross-origin cookies
       });
-  
+
       const mailOptions = {
         from: process.env.SENDER_EMAIL,
         to: cache.email,
         subject: "Account is logineed",
         text: `Welcome to the Blog App`,
       };
-  
-      await transporter.sendMail(mailOptions);
 
+      await transporter.sendMail(mailOptions);
 
       return res.json({
         success: true,
@@ -150,8 +145,17 @@ export const login = async (req, res) => {
       text: `Welcome to the Blog App`,
     };
 
+    let setcache = await client.set(
+      `user:profile:${email}`,
+      JSON.stringify(user)
+    );
+
     await transporter.sendMail(mailOptions);
-    return res.json({ success: true, message: "Logged in succesfull" ,cache});
+    return res.json({
+      success: true,
+      message: "Logged in succesfull",
+      setcache,
+    });
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }
@@ -164,27 +168,30 @@ export const profile = async (req, res) => {
       where: { id: req.body.id }, // Use 'id' instead of 'email' if you're using the user ID
     });
 
+    let cache = await client.get(`user:profile:${user.email}`);
+    cache = cache ? JSON.parse(cache) : null;
+
+    if (cache && cache.email) {
+      return res.json({ success: true, message: "cached user", cache });
+    }
+
     if (!user) {
       return res.json({ success: false, message: "User not found." });
     }
 
-    return res.json({ success: true, user });
+    return res.json({ success: true, user, cache });
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }
 };
 
 export const logout = async (req, res) => {
-
-
-let user = await userModel.findOne({
-  where:{id:req.body.id}
-})
+  let user = await userModel.findOne({
+    where: { id: req.body.id },
+  });
 
   try {
-
-client.del(`user:profile:ishansaini0105@gmail.com`);
-
+    client.del(`user:profile:${user.email}`);
 
     res.cookie("token", "", {
       httpOnly: true,

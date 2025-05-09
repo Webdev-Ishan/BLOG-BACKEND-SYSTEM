@@ -6,11 +6,15 @@ export const donate = async (req, res) => {
   const userId = req.body.userId;
 
   if (!amount) {
-    return res.status(400).json({ success: false, message: "Amount is required" });
+    return res
+      .status(400)
+      .json({ success: false, message: "Amount is required" });
   }
 
   if (!userId) {
-    return res.status(400).json({ success: false, message: "User ID is required." });
+    return res
+      .status(400)
+      .json({ success: false, message: "User ID is required." });
   }
 
   try {
